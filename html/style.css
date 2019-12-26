@@ -46,12 +46,13 @@ h3 {
     color: silver;
     padding-left: 20px;
     padding-right: 20px;
-    float: right; 
+    float: right;
     width: 10%;
     text-align: right;
 }
 
 .line {
+    overflow: scroll;
     display: table-cell;
     font-family: Consolas, Courier, monospace;
     white-space: pre;
@@ -73,7 +74,7 @@ h3 {
 }
 
 .spoiler-body {
-    overflow: hidden;
+    overflow-y: hidden;
 }
 
 .spoiler-head.folded > h2 {

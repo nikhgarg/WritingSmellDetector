@@ -10,7 +10,7 @@
             "prefix": "\\b",
             "suffix": "",
             "re": [
-                "a [aeiou]",
+                "a [aeiou](?!nit|nique)",
                 "an [bcdfghjklmnpqrstvwxz]"
             ]
         },

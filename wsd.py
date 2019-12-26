@@ -137,7 +137,7 @@ class Ruleset(object):
 class ProcessedRule(object):
     '''
     Processed rule.
-    
+
     Contains a reference to an original rule,
     a dictionary of matched lines and
     a dictionary of pattern matches.
@@ -155,7 +155,7 @@ class ProcessedRule(object):
 class ProcessedRuleset(object):
     '''
     Processed ruleset.
-    
+
     Contains a reference to an original ruleset,
     a dictionary of matched lines and
     a list of processed rules.
@@ -185,13 +185,13 @@ class ProcessedRuleset(object):
 class ProcessedRulesets(object):
     '''
     A collection of processed rulesets.
-    
+
     Contains methods for serialization of results.
     '''
     def __init__(self, rulesets, text):
         '''
         Perform processing of rulesets.
-        
+
         Args:
             rulesets: A list of raw rulesets.
             text: A text to process.
@@ -211,7 +211,7 @@ class ProcessedRulesets(object):
         Args:
             include_lines: A boolean indicating if matched lines
                 should be included.
-                
+
         Returns:
             A dict suitable for seraalization
             containing a rulesets key (a list of processed rulesets)
@@ -225,7 +225,7 @@ class ProcessedRulesets(object):
     def to_html(self, embed_css=True, include_empty=False):
         '''
         Convert results into HTML.
-        
+
         Args:
             embed_css: A boolean indicating whether css should be
                 embedded into the HTML code.
@@ -249,7 +249,7 @@ class ProcessedRulesets(object):
     def to_console(self, include_empty=False):
         '''
         Print results to console.
-        
+
         Args:
             include_empty: A boolean indicating whether empty rulesets,
                 rules and patterns should be printed.
@@ -260,8 +260,8 @@ class ProcessedRulesets(object):
         def print_line(line, lineno):
             '''
             Print a line together with its line number.
-            
-            If the line contains \n, split it into multiple lines 
+
+            If the line contains \n, split it into multiple lines
             and print all of them.
             '''
             for i, chunk in enumerate(line.strip().split('\n')):
@@ -357,13 +357,15 @@ def parse_args():
     ruletypes = get_rule_types()
     import argparse
     parser = argparse.ArgumentParser()
-    parser.add_argument('text', type=str,
-        help='text file',)
     parser.add_argument('rules', type=str, nargs='*',
         help = 'rule type followed by arguments required by this type\n' +
         'available types of rules are: ' + ', '.join(ruletypes))
     #parser.add_argument('--info', type=str, metavar='RULETYPE',
     #    help='show number of arguments and docstrings of a specific rule type')
+    parser.add_argument('-d', '--directory', action='store',  #instead of a specific file, do all tex files in directory
+        help='directory of files',)
+    parser.add_argument('-t', '--text', action='store',
+            help='text file',)
     export = parser.add_argument_group('export')
     html_group = parser.add_argument_group('html')
     json_group = parser.add_argument_group('json')
@@ -396,65 +398,80 @@ def parse_args():
 
 def main(args=parse_args()):
     '''
-    Load text from args.text.
+    Load text from args.text
     Load and run rulesets from args.ruleset list.
     Store results to args.outfile if specified.
     '''
-    # Check for errors
-    if not os.path.isfile(args.text):
-        LOG.error('File not found: ' + args.text)
+
+    from os.path import isfile, join
+
+    if args.directory and os.path.isdir(args.directory): #do every tex file in the directory
+        filestodo = [join(args.directory, f) for f in os.listdir(args.directory) if f[-4:] == '.tex']
+    elif os.path.isfile(args.text):
+        filestodo = [args.text]
+    else:    # Check for errors
+        LOG.error('File not found: {}, and not valid directory: {}'.format(args.text, args.directory))
         return 1
-    # Load text
-    text = codecs.open(args.text, encoding='utf-8').read()
-    LOG.info('Loaded {0} bytes from {1}'.format(len(text), args.text))
-    # Load rules
-    rulesets = []
-    rules = args.rules
-    if rules:
-        while rules:
-            rule_name = rules[0]
-            rules[0:1] = []
-            mod = __import__('{0}_rules'.format(rule_name))
-            if hasattr(mod, 'get_rulesets'):
-                argcount = mod.get_rulesets.func_code.co_argcount
-                rule_args = rules[:argcount]
-                rules[:argcount] = []
-                rulesets.extend(mod.get_rulesets(*rule_args))
-    else:
-        import imp
-        for rule_name in get_rule_types():
-            try:
-                modname = '{0}_rules'.format(rule_name)
-                mod = imp.load_source(modname, os.path.join(get_base_path(), '{0}.py'.format(modname)))
-                rulesets.extend(mod.get_rulesets())
-                LOG.info('Loaded: {0}'.format(rule_name))
-            except Exception as e:
-                LOG.warn('Not loaded: {0}: {1}'.format(rule_name, e))
-    # Process rules
-    prulesets = ProcessedRulesets(rulesets, text)
-    # Output the result
-    if args.outfile:
-        if args.output_format == 'json':
-            if args.reftext:
-                path = os.path.abspath(args.text) if args.abspath else args.text
-                json_results = prulesets.to_dict(False)
-                import hashlib
-                json_results['text'] = {
-                    'file': path,
-                    'md5': hashlib.md5(args.text).hexdigest()
-                }
-            else:
-                json_results = prulesets.to_dict(True)
-            json.dump(json_results,
-                      codecs.open(args.outfile, 'wb', encoding='utf-8'),
-                      indent=args.indent, cls=IterableEncoder)
-        elif args.output_format == 'html':
-            html = prulesets.to_html(not args.no_embed_css, args.include_empty)
-            outfile = codecs.open(args.outfile, 'wb', encoding='utf-8')
-            outfile.write(html)
-        LOG.info('Results saved to: {0}'.format(args.outfile))
-    else:
-        prulesets.to_console(args.include_empty)
+
+    outputdir = join(args.directory, 'SmellDetector/')
+    if not os.path.exists(outputdir): os.mkdir(outputdir)
+    outputnames = [join(outputdir, f.replace(args.directory, '').replace('.tex', '.html')) for f in filestodo]
+    print(outputnames)
+
+    for en in range(len(filestodo)):
+        textfile = filestodo[en]
+        outputfile = outputnames[en]
+        # Load text
+        text = codecs.open(textfile, encoding='utf-8').read()
+        LOG.info('Loaded {0} bytes from {1}'.format(len(text), textfile))
+        # Load rules
+        rulesets = []
+        rules = args.rules
+        if rules:
+            while rules:
+                rule_name = rules[0]
+                rules[0:1] = []
+                mod = __import__('{0}_rules'.format(rule_name))
+                if hasattr(mod, 'get_rulesets'):
+                    argcount = mod.get_rulesets.func_code.co_argcount
+                    rule_args = rules[:argcount]
+                    rules[:argcount] = []
+                    rulesets.extend(mod.get_rulesets(*rule_args))
+        else:
+            import imp
+            for rule_name in get_rule_types():
+                try:
+                    modname = '{0}_rules'.format(rule_name)
+                    mod = imp.load_source(modname, os.path.join(get_base_path(), '{0}.py'.format(modname)))
+                    rulesets.extend(mod.get_rulesets())
+                    LOG.info('Loaded: {0}'.format(rule_name))
+                except Exception as e:
+                    LOG.warn('Not loaded: {0}: {1}'.format(rule_name, e))
+        # Process rules
+        prulesets = ProcessedRulesets(rulesets, text)
+        # Output the result
+        if outputfile:
+            if args.output_format == 'json':
+                if args.reftext:
+                    path = os.path.abspath(textfile) if args.abspath else textfile
+                    json_results = prulesets.to_dict(False)
+                    import hashlib
+                    json_results['text'] = {
+                        'file': path,
+                        'md5': hashlib.md5(textfile).hexdigest()
+                    }
+                else:
+                    json_results = prulesets.to_dict(True)
+                json.dump(json_results,
+                          codecs.open(outputfile, 'wb', encoding='utf-8'),
+                          indent=args.indent, cls=IterableEncoder)
+            elif args.output_format == 'html':
+                html = prulesets.to_html(not args.no_embed_css, args.include_empty)
+                outfile = codecs.open(outputfile, 'wb', encoding='utf-8')
+                outfile.write(html)
+            LOG.info('Results saved to: {0}'.format(outputfile))
+        else:
+            prulesets.to_console(args.include_empty)
 
 if __name__ == '__main__':
     print(parse_args())

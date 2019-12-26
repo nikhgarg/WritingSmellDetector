@@ -12,24 +12,19 @@
             "re": "\\w+''[.?,]"
         },
         {
-            "name": "Dashes",
+            "name": "Dashes --- probably don't mean double --, but triple",
             "prefix": "\\w",
             "suffix": "\\w",
             "re": [
-                    "---",
-                    " --- ",
-                    " ---",
-                    "--- "
+                    "--",
+                    " -- ",
+                    " --",
+                    "-- "
             ]
         },
         {
-            "name": "Improper Quotation Marks",
-            "re": "\""
+            "name": "Improper Quotation Marks, unless quoting a filename for plot",
+            "re": "\"(?!plots/)"
         }
     ]
 }
-
-
-
-
-

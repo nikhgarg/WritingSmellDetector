@@ -3,21 +3,18 @@
     "type": "re",
     "flags": "I",
     "rules": [
+
         {
-            "name": "No space before parentheses",
-            "re": "\\w\\("
+            "name": "No Space after period, unless part of i.e., or e.g.,",
+            "re": "\\.(?!g\\.|e\\.|tex})[a-zA-Z]+"
         },
         {
-            "name": "No Space after period",
-            "re": "\\.\\w+"
+            "name": "Need comma after i.e., or e.g.,",
+            "re": "(i\\.e\\.|e\\.g\\.)(?!,)"
         },
         {
             "name": "Multiple spaces after period",
             "re": "\\.  +\\w+"
-        },
-        {
-            "name": "Serial comma",
-            "re": ", \\w+, and"
         },
         {
             "name": "No serial comma",
@@ -25,8 +22,3 @@
         }
     ]
 }
-
-
-
-
-

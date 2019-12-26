@@ -9,26 +9,10 @@
     },
     "rules": [
         {
-            "name": "That / Which",
-            "re": [
-                "\\w+ \\w+ which",
-                "\\w+ \\w+ that"
-            ]
-        },
-        {
-            "name": "Between / Among",
-            "re": "(between|among)"
-        },
-        {
-            "name": "Fewer / Less",
-            "re": "(fewer|less)"
-        },
-        {
             "name": "Sentence End in a Preposition",
             "suffix": "\\.",
             "re": [
                 "about",
-                "above",
                 "across",
                 "after",
                 "against",
@@ -46,7 +30,6 @@
                 "atop",
                 "barring",
                 "beford",
-                "below",
                 "beneath",
                 "beside",
                 "besides",
@@ -90,7 +73,6 @@
                 "than",
                 "throughout",
                 "till",
-                "times",
                 "to",
                 "toward",
                 "towards",
@@ -110,11 +92,3 @@
         }
     ]
 }
-
-
-
-
-
-
-
-

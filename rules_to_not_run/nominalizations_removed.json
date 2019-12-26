@@ -14,8 +14,13 @@
     "rules": [
         {
             "re": [
+                "\\w+ion of",
                 "\\w+ed an",
+                "\\w+ of (the|a)",
+                "was \\w+en",
+                "were \\w+",
                 "it was \\w+",
+                "\\w+ly",
                 "for the reason that",
                 "due to the fact that",
                 "owing to the fact that",

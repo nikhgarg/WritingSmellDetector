@@ -13,11 +13,11 @@ Requirements
 Installation
 ------------
 
-CLone the repository onto your local machine, change into that directory and run: 
+Clone the repository onto your local machine, change into that directory and run:
 
-    sudo python setup.py install 
+    sudo python setup.py install
 
-You can also just launch wsd.py from the directory without doing an installation. 
+You can also just launch wsd.py from the directory without doing an installation.
 
 Usage
 -----
@@ -25,12 +25,16 @@ Usage
 Simple usage (following installation):
 
     wsd -o output_file.html your_text_file
-    
-This will try to process your text with all rules 
+
+This will try to process your text with all rules
 and will output the result into an html file.
 
-If you did not install it, you can run it via: 
+If you did not install it, you can run it via:
 
-    python wsd.py --o output_file.html your_text_file 
+    python wsd.py --outfile output_file.html your_text_file
+
+Alternatively, to run it for every tex file in a directory (and save outputs to a sub-folder called SmellDetector/):
+
+    python wsd.py -d directory_path
 
 For advanced usage please refer to `wsd --help`.

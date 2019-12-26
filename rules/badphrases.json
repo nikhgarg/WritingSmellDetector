@@ -1,0 +1,11 @@
+{
+    "ruleset": "Ugly phrases",
+    "type": "re",
+    "flags": "I",
+    "rules": [
+        {
+            "name": "Note that",
+            "re": "note that"
+        }
+    ]
+}
